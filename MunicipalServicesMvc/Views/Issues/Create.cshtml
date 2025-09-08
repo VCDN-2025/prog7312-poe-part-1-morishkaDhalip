@@ -1,0 +1,243 @@
+﻿@model MunicipalServicesMvc.Models.IssueCreateViewModel
+@{
+    ViewData["Title"] = "Report an Issue";
+}
+<style>
+    :root {
+        --brand-blue: #0a5ea8;
+        --brand-teal: #00a99d;
+        --brand-yellow: #f5b400;
+        --brand-grey: #f5f7fb;
+        --brand-dark: #0c223a;
+    }
+
+    .page-wrap {
+        background: var(--brand-grey);
+        border-radius: 1rem;
+        padding: 1.25rem;
+    }
+
+    .form-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 .75rem 2rem rgba(0,0,0,.06);
+    }
+
+    .card-title-bar {
+        background: linear-gradient(135deg, var(--brand-blue), var(--brand-teal));
+        color: #fff;
+        border-radius: 1rem 1rem 0 0;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+    }
+
+    .help-chip {
+        background: #fff;
+        border: 1px solid #e5e9f2;
+        border-radius: .75rem;
+        padding: .35rem .6rem;
+        display: inline-flex;
+        gap: .35rem;
+        margin: .15rem .35rem .15rem 0;
+        font-weight: 500;
+    }
+
+    .progress {
+        height: .8rem;
+        background: #e9eef6;
+    }
+
+    .progress-bar {
+        background: linear-gradient(90deg, var(--brand-yellow), #ffd766);
+    }
+
+    .tip {
+        background: #fff7d9;
+        border: 1px solid #ffe9a8;
+        border-radius: .75rem;
+        padding: .6rem .75rem;
+    }
+
+    .side-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 .5rem 1.25rem rgba(0,0,0,.05);
+    }
+
+        .side-card .card-header {
+            background: #fff;
+            border-bottom: 0;
+            font-weight: 600;
+        }
+
+        .side-card .list-group-item {
+            border: 0;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+    .req-dot {
+        display: inline-block;
+        width: .45rem;
+        height: .45rem;
+        border-radius: 50%;
+        background: var(--brand-teal);
+        margin-right: .35rem;
+    }
+
+    .small-muted {
+        color: #667;
+    }
+</style>
+
+<div class="container my-4">
+    <div class="page-wrap">
+        <div class="row g-4">
+            <!-- Main form -->
+            <div class="col-lg-8">
+                <div class="card form-card">
+                    <div class="card-title-bar">Report an Issue</div>
+                    <div class="card-body">
+                        <p class="small small-muted mb-3">
+                            Provide clear details so teams can respond faster. You can add a photo or document if helpful.
+                        </p>
+
+                        <form asp-action="Create" method="post" enctype="multipart/form-data" class="mt-2">
+                            <div class="mb-3">
+                                <label asp-for="Location" class="form-label">Location <span class="text-danger">*</span></label>
+                                <input asp-for="Location" class="form-control" placeholder="e.g., Bosman St near Ward 3 office" />
+                                <span asp-validation-for="Location" class="text-danger"></span>
+                                <div class="form-text">Street + nearby landmark helps (no personal info).</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Category" class="form-label">Category <span class="text-danger">*</span></label>
+                                <select asp-for="Category" class="form-select">
+                                    <option value="">-- Select --</option>
+                                    <option>Sanitation</option>
+                                    <option>Roads</option>
+                                    <option>Utilities - Water</option>
+                                    <option>Utilities - Electricity</option>
+                                    <option>Parks & Recreation</option>
+                                    <option>Public Safety</option>
+                                    <option>Housing</option>
+                                    <option>Other</option>
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>
+                                <textarea asp-for="Description" class="form-control" rows="5" placeholder="Briefly describe the issue and impact."></textarea>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-danger" asp-validation-for="Description"></span>
+                                    <small class="small-muted" id="desc-count">0 / 2000</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Attachments (images/documents) <span class="text-muted">(optional)</span></label>
+                                <input type="file" name="Files" multiple class="form-control" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" />
+                                <div class="form-text">Accepted: JPG, PNG, GIF, PDF, DOC, DOCX</div>
+                            </div>
+
+                            <!-- Engagement: progress & helper text -->
+                            <div class="mb-3">
+                                <div class="progress" aria-label="Form completion progress">
+                                    <div id="pbar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small id="helper" class="text-muted">Let’s get started: fill in the details to submit.</small>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="submit" class="btn btn-primary">Submit report</button>
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Home</a>
+                            </div>
+
+                            <div class="mt-3 tip">
+                                <span class="req-dot"></span><strong>Heads-up:</strong> On the next screen you’ll be able to
+                                <em>share this ticket via WhatsApp Web</em> to notify your ward group.
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar: tips & categories -->
+            <div class="col-lg-4">
+                <div class="card side-card mb-3">
+                    <div class="card-header">Quick tips</div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Be specific:</strong> Add a street and a landmark.</li>
+                            <li class="list-group-item"><strong>Keep it brief:</strong> A few clear sentences help.</li>
+                            <li class="list-group-item"><strong>Attach evidence:</strong> Photo or document if available.</li>
+                            <li class="list-group-item"><strong>Share:</strong> Use WhatsApp on confirmation.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card side-card">
+                    <div class="card-header">Popular categories</div>
+                    <div class="card-body">
+                        <div>
+                            <span class="help-chip">🚧 Roads</span>
+                            <span class="help-chip">🧹 Sanitation</span>
+                            <span class="help-chip">🚰 Water</span>
+                            <span class="help-chip">💡 Electricity</span>
+                            <span class="help-chip">🌳 Parks</span>
+                            <span class="help-chip">🚓 Public Safety</span>
+                            <span class="help-chip">🏘 Housing</span>
+                            <span class="help-chip">➕ Other</span>
+                        </div>
+                        <hr />
+                        <p class="small small-muted mb-0">
+                            Do not include personal identifiers (ID numbers, phone numbers) in the description.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Keep IDs exactly as generated by asp-for
+        const loc = document.getElementById("Location");
+        const cat = document.getElementById("Category");
+        const desc = document.getElementById("Description");
+        const pbar = document.getElementById("pbar");
+        const helper = document.getElementById("helper");
+        const descCount = document.getElementById("desc-count");
+
+        function update(){
+          let s = 0;
+          if (loc && loc.value.trim()) s += 33;
+          if (cat && cat.value.trim()) s += 33;
+          const dlen = (desc && desc.value) ? desc.value.trim().length : 0;
+          if (dlen >= 10) s += 34;
+
+          if (pbar){
+            pbar.style.width = s + "%";
+            pbar.setAttribute("aria-valuenow", s);
+          }
+          if (helper){
+            helper.textContent =
+              s === 0 ? "Let’s get started: fill in the details to submit." :
+              s <= 33 ? "Nice start! Add a category and short description." :
+              s <= 66 ? "Halfway there! A photo or document helps our teams respond faster." :
+                        "Great! Ready to submit.";
+          }
+          if (descCount){
+            descCount.textContent = dlen + " / 2000";
+          }
+        }
+
+        [loc, cat, desc].forEach(function(el){
+          if (el) el.addEventListener("input", update);
+        });
+        update();
+    </script>
+}

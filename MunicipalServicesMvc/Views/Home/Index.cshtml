@@ -1,0 +1,260 @@
+﻿@model IEnumerable<MunicipalServicesMvc.Models.Issue>
+@{
+    ViewData["Title"] = "Municipal Services";
+}
+<style>
+    /* Brand palette */
+    :root {
+      --brand-blue: #0a5ea8;
+      --brand-teal: #00a99d;
+      --brand-yellow: #f5b400;
+      --brand-grey: #f5f7fb;
+      --brand-dark: #0c223a;
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--brand-blue), var(--brand-teal));
+      color: #fff;
+      border-radius: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(ellipse at 120% -10%, rgba(255,255,255,.25), transparent 45%),
+                  radial-gradient(ellipse at -20% 120%, rgba(0,0,0,.15), transparent 35%);
+      pointer-events:none;
+    }
+    .hero .btn {
+      box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.2);
+    }
+
+    /* Cards */
+    .card-lift {
+      transition: transform .15s ease, box-shadow .15s ease;
+      border: none;
+    }
+    .card-lift:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 1rem 2rem rgba(0,0,0,.08);
+    }
+
+    /* List group tweaks */
+    .list-group-item small { color: #667; }
+
+    /* Badge chips */
+    .chip {
+      background: var(--brand-grey);
+      border-radius: 999px;
+      padding: .35rem .75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      margin: .25rem .4rem .25rem 0;
+      font-weight: 500;
+    }
+
+    /* Footer */
+    .site-footer {
+      background: #0c223a;
+      color: #cfe3ff;
+      border-radius: 1rem;
+    }
+    .site-footer a { color:#fff; text-decoration: underline; }
+</style>
+
+<div class="container my-4">
+    <!-- Hero -->
+    <section class="hero p-5 mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="display-5 fw-bold mb-2">Municipal Services Portal</h1>
+                <p class="lead mb-4">
+                    Report local issues, track requests, and stay informed about what’s happening in your community.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-warning btn-lg px-4" asp-controller="Issues" asp-action="Create">
+                        Report an Issue
+                    </a>
+                    <button class="btn btn-outline-light btn-lg px-4" disabled title="Coming soon">
+                        Local Events & Announcements
+                    </button>
+                    <button class="btn btn-outline-light btn-lg px-4" disabled title="Coming soon">
+                        Service Request Status
+                    </button>
+                </div>
+                <p class="mt-3 mb-0"><small>Tip: share your ticket via WhatsApp right after submitting to alert your ward group.</small></p>
+            </div>
+            <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
+                <div class="bg-white text-dark rounded-4 p-4 shadow" style="min-height:180px;">
+                    <h5 class="mb-2">Today at a glance</h5>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div>
+                            <div class="fw-bold fs-4">Report</div>
+                            <small>Log issues in minutes</small>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">Attach</div>
+                            <small>Photos & documents</small>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">Share</div>
+                            <small>WhatsApp-ready</small>
+                        </div>
+                    </div>
+                    <hr class="my-3" />
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge text-bg-warning">New</span>
+                        <small>WhatsApp Web share on confirmation page</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Three feature cards -->
+    <section class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card card-lift h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2 fs-4">🛠️</div>
+                            <h5 class="card-title mb-0">Report Issues</h5>
+                        </div>
+                        <p class="card-text">
+                            Log potholes, water leaks, streetlights, sanitation and more. Add a brief description and optional attachments.
+                        </p>
+                        <a asp-controller="Issues" asp-action="Create" class="btn btn-primary">Start a report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-lift h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2 fs-4">📣</div>
+                            <h5 class="card-title mb-0">Local Events</h5>
+                        </div>
+                        <p class="card-text">Community meetings, service interruptions and announcements—all in one place.</p>
+                        <button class="btn btn-outline-secondary" disabled>Coming soon</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-lift h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2 fs-4">📈</div>
+                            <h5 class="card-title mb-0">Request Status</h5>
+                        </div>
+                        <p class="card-text">Simple, transparent tracking—received, assigned, in progress, resolved.</p>
+                        <button class="btn btn-outline-secondary" disabled>Coming soon</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works + Categories + Recent Tickets -->
+    <section class="mb-5">
+        <div class="row g-4">
+            <!-- How it works -->
+            <div class="col-lg-5">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">How it works</h5>
+                        <ol class="mb-0 ps-3">
+                            <li class="mb-2"><strong>Report:</strong> Give a location, pick a category, and describe the issue.</li>
+                            <li class="mb-2"><strong>Attach:</strong> Add a photo or document (optional but helpful).</li>
+                            <li class="mb-2"><strong>Share:</strong> On the confirmation page, click <em>Share via WhatsApp Web</em> to alert your ward group.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular categories -->
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Popular categories</h5>
+                        <div>
+                            <span class="chip">🚧 Roads</span>
+                            <span class="chip">🚰 Utilities – Water</span>
+                            <span class="chip">💡 Utilities – Electricity</span>
+                            <span class="chip">🧹 Sanitation</span>
+                            <span class="chip">🌳 Parks & Recreation</span>
+                            <span class="chip">🏘️ Housing</span>
+                            <span class="chip">🚓 Public Safety</span>
+                            <span class="chip">➕ Other</span>
+                        </div>
+                        <hr />
+                        <a asp-controller="Issues" asp-action="Create" class="btn btn-outline-primary">Make a report</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Tickets -->
+            <div class="col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Recent tickets</h5>
+                        <ul class="list-group list-group-flush">
+                            @{
+                                bool any = false;
+                                if (Model != null)
+                                {
+                                    foreach (var i in Model)
+                                    {
+                                        any = true;
+                                        <li class="list-group-item px-0">
+                                            <div class="fw-semibold">@i.Category</div>
+                                            <div>@i.Location</div>
+                                            <small>@i.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</small>
+                                        </li>
+                                    }
+                                }
+                                if (!any)
+                                {
+                                    <li class="list-group-item px-0">
+                                        <em>No recent items.</em>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <section class="site-footer p-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <h6 class="mb-2">About this portal</h6>
+                <p class="mb-2">
+                    A streamlined way to report municipal issues and share updates with your community via WhatsApp.
+                </p>
+                <p class="mb-0"><small>© @DateTime.Now.Year Your Municipality. All rights reserved.</small></p>
+            </div>
+            <div class="col-md-3">
+                <h6 class="mb-2">Quick links</h6>
+                <ul class="list-unstyled mb-0">
+                    <li><a asp-controller="Issues" asp-action="Create">Report an Issue</a></li>
+                    <li><a href="#" onclick="return false;" aria-disabled="true">Local Events (soon)</a></li>
+                    <li><a href="#" onclick="return false;" aria-disabled="true">Request Status (soon)</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6 class="mb-2">Contact</h6>
+                <ul class="list-unstyled mb-0">
+                    <li><a href="mailto:info@yourmunicipality.gov.za">info@yourmunicipality.gov.za</a></li>
+                    <li><a href="tel:+27110000000">+27 11 000 0000</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</div>

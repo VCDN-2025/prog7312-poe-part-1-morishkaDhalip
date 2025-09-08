@@ -1,0 +1,230 @@
+﻿@model MunicipalServicesMvc.Models.Issue
+@{
+    ViewData["Title"] = "Issue Details";
+    var submittedLocal = Model.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+    // WhatsApp-encoded text (for wa.me)
+    var msg = $"Municipal Issue Report%0A• Ticket: {Model.Id}%0A• Category: {Model.Category}%0A• Location: {Model.Location}%0A• Submitted: {submittedLocal}";
+    // Plain text (for copy-to-clipboard helper)
+    var sharePlain = $"Municipal Issue Report\n• Ticket: {Model.Id}\n• Category: {Model.Category}\n• Location: {Model.Location}\n• Submitted: {submittedLocal}";
+}
+<style>
+    :root {
+        --brand-blue: #0a5ea8;
+        --brand-teal: #00a99d;
+        --brand-yellow: #f5b400;
+        --brand-grey: #f5f7fb;
+        --brand-dark: #0c223a;
+    }
+
+    .page-wrap {
+        background: var(--brand-grey);
+        border-radius: 1rem;
+        padding: 1rem;
+    }
+
+    .card-soft {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 .75rem 2rem rgba(0,0,0,.06);
+    }
+
+    .title-bar {
+        background: linear-gradient(135deg, var(--brand-blue), var(--brand-teal));
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.1rem 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        background: #e8fff7;
+        color: #077a60;
+        border: 1px solid #c7f2e7;
+        border-radius: 999px;
+        padding: .3rem .7rem;
+        font-weight: 600;
+        font-size: .9rem;
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: #fff;
+        border: 1px solid #e6ebf2;
+        border-radius: 999px;
+        padding: .35rem .7rem;
+        margin: .15rem .35rem .15rem 0;
+        font-weight: 500;
+    }
+
+    .meta small {
+        color: #667;
+    }
+
+    .thumb {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: .6rem;
+        border: 1px solid #eef2f7;
+    }
+
+    .file-item {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .wa-card .btn-success {
+        background: linear-gradient(90deg, #25d366, #1ebe57);
+        border: none;
+        box-shadow: 0 .5rem 1.25rem rgba(37,211,102,.2);
+    }
+
+    .note {
+        background: #fff7d9;
+        border: 1px solid #ffe9a8;
+        border-radius: .75rem;
+        padding: .6rem .75rem;
+    }
+</style>
+
+<div class="container my-4">
+    <div class="page-wrap">
+        <!-- Title & status -->
+        <div class="title-bar d-flex flex-wrap align-items-center justify-content-between">
+            <div class="text-white">
+                <h2 class="h4 mb-0">Issue submitted</h2>
+                <small class="opacity-75">Thank you — your report has been recorded.</small>
+            </div>
+            <div>
+                <span class="status-pill">✔ Received</span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: Ticket details -->
+            <div class="col-lg-8">
+                <div class="card card-soft">
+                    <div class="card-body">
+                        <div class="meta mb-3">
+                            <span class="chip">🧾 Ticket <strong>#@Model.Id</strong></span>
+                            <span class="chip">📂 @Model.Category</span>
+                            <span class="chip">🕒 @submittedLocal</span>
+                        </div>
+
+                        <dl class="row mb-0">
+                            <dt class="col-sm-3">Location</dt>
+                            <dd class="col-sm-9">@Model.Location</dd>
+
+                            <dt class="col-sm-3">Description</dt>
+                            <dd class="col-sm-9">@Model.Description</dd>
+
+                            <dt class="col-sm-3">Attachments</dt>
+                            <dd class="col-sm-9">
+                                @{
+                                    if (Model.Attachments.Count == 0)
+                                    {
+                                        <em>None</em>
+                                        ;
+                                    }
+                                    else
+                                    {
+                                        <div class="row g-3">
+                                            @{
+                                                foreach (var p in Model.Attachments)
+                                                {
+                                                    var ext = System.IO.Path.GetExtension(p)?.ToLowerInvariant();
+                                                    bool isImg = ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".webp";
+                                                    <div class="col-md-6">
+                                                        <div class="border rounded p-2 h-100">
+                                                            @if (isImg)
+                                                            {
+                                                                <a href="@p" target="_blank"><img src="@p" alt="Attachment" class="thumb" /></a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="file-item">
+                                                                    <span>📄</span>
+                                                                    <a href="@p" target="_blank">@p</a>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </dd>
+                        </dl>
+
+                        <hr class="my-4" />
+                        <div class="note">
+                            <strong>Next step:</strong> Share this ticket via WhatsApp to alert your ward or street group.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: WhatsApp share & actions -->
+            <div class="col-lg-4">
+                <div class="card card-soft wa-card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title mb-2">Share via WhatsApp</h5>
+                        <p class="mb-3 small">Opens WhatsApp Web with a prefilled message.</p>
+                        <a class="btn btn-success w-100 mb-2" href="https://wa.me/?text=@msg" target="_blank">Open WhatsApp Web</a>
+
+                        <div class="form-text mb-1">Or copy the message:</div>
+                        <textarea id="shareText" class="form-control mb-2" rows="4" readonly>@sharePlain</textarea>
+                        <button type="button" class="btn btn-outline-secondary w-100" id="copyBtn">Copy message</button>
+                    </div>
+                </div>
+
+                <div class="card card-soft">
+                    <div class="card-body">
+                        <h6 class="mb-2">What to keep</h6>
+                        <ul class="mb-0 small">
+                            <li>Ticket ID: <strong>@Model.Id</strong></li>
+                            <li>Submitted: <strong>@submittedLocal</strong></li>
+                            <li>Category: <strong>@Model.Category</strong></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Back to Home</a>
+                    <a asp-controller="Issues" asp-action="Create" class="btn btn-primary">Report another issue</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function(){
+          const btn = document.getElementById('copyBtn');
+          const ta = document.getElementById('shareText');
+          if (btn && ta && navigator.clipboard) {
+            btn.addEventListener('click', async function(){
+              try {
+                await navigator.clipboard.writeText(ta.value);
+                btn.textContent = "Copied!";
+                setTimeout(()=> btn.textContent = "Copy message", 1500);
+              } catch(e) {
+                // Fallback select if clipboard API fails
+                ta.focus(); ta.select();
+                document.execCommand('copy');
+                btn.textContent = "Copied!";
+                setTimeout(()=> btn.textContent = "Copy message", 1500);
+              }
+            });
+          }
+        })();
+    </script>
+}

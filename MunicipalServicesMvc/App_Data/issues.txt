@@ -1,0 +1,8 @@
+ISSUE|1|2025-09-05T08:15:48.2435733Z|KZN|Sanitation|no%20clean%20water|Received
+END
+ISSUE|2|2025-09-08T10:22:35.5907646Z|Eastern%20cape%2C14%20Kale%20street|Utilities%20-%20Electricity|Electricity%20pole%20down|Received
+END
+ISSUE|3|2025-09-08T10:26:10.4347433Z|Western%20cape|Roads|Too%20many%20potholes|Received
+END
+ISSUE|4|2025-09-08T10:29:51.9077243Z|Gauteng|Utilities%20-%20Electricity|Light%20pole%20down|Received
+END

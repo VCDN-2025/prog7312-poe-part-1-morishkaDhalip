@@ -1,25 +1,56 @@
-MUNICIPAL SERVICES MVC APPLICATION
+# Municipal Services MVC (ASP.NET Core 8)
 
-Prerequisites:
-- .NET 8 SDK (dotnet --version → 8.x)
+A municipal services portal for South Africa that implements **Report Issues** with a **WhatsApp-first engagement strategy** and **custom data structures** (no `List<T>`, arrays, or LINQ in the storage/manipulation path).
+
+---
+
+## ✨ Features
+
+- **Landing page** with three tasks:
+  - **Report Issues** ✅ (implemented)
+  - **Local Events & Announcements** 🔒 (disabled / “Coming Soon”)
+  - **Service Request Status** 🔒 (disabled / “Coming Soon”)
+- **Report Issue** form:
+  - Location (textbox), Category (dropdown), Description (textarea)
+  - Attachments (multiple files: images/PDFs/docs)
+  - **Engagement cue:** progress bar + friendly helper text
+- **WhatsApp-only engagement:** one-click **Share via WhatsApp Web** with a compact, prefilled ticket summary  
+  (`Ticket: {Id} • Category: {Category} • Location: {Location} • Submitted: {YYYY-MM-DD HH:mm}`)
+- **Custom data structures:**  
+  - `IssueList` — singly linked list of `Issue` (append O(1), custom enumerator)  
+  - `AttachmentList` — singly linked list of string paths
+- **Manual persistence:** human-readable, line-based file (`App_Data/issues.txt`)
+
+---
+
+## 🧰 Prerequisites
+
+- .NET 8 SDK (`dotnet --version` → 8.x)
 - Windows/macOS/Linux
 - (Optional) Visual Studio 2022 / VS Code / Rider
 
-Run from the CLI:
+---
+
+## 🚀 Run the app
+
+### CLI
+```bash
 # from the repository root
 dotnet restore
 dotnet build
 dotnet run
-
-
 Open the printed URL (e.g., https://localhost:5xxx).
 
-Run in Visual Studio:
-- Open the .csproj or solution.
-- Set build config to Debug.
-- Press F5 (IIS Express or Kestrel).
+Visual Studio
+Open the .csproj or solution.
 
-Project structure:
+Set configuration to Debug.
+
+Press F5 (IIS Express or Kestrel).
+
+🗂 Project structure
+bash
+Copy code
 MunicipalServicesMvc/
 ├─ Controllers/
 │  ├─ HomeController.cs         # Landing page + recent tickets
@@ -36,119 +67,137 @@ MunicipalServicesMvc/
 │  └─ Issues/
 │     ├─ Create.cshtml          # Form + progress bar (engagement)
 │     └─ Details.cshtml         # Confirmation + WhatsApp share button
-├─ wwwroot/uploads/             # Uploaded files (grouped per {IssueId}/)
+├─ wwwroot/uploads/             # Uploaded files grouped per {IssueId}/
 ├─ App_Data/issues.txt          # Line-based persistence (auto-created)
 └─ Program.cs                   # Service registration, static files, routes
+📱 WhatsApp-only engagement
+After submitting a report, the Details page shows Share via WhatsApp Web.
 
- WhatsApp-only engagement (no SMS/USSD/data-free web):
-- After submission, Details shows “Share via WhatsApp Web”.
-- The link opens wa.me with a prefilled, compact, human-readable message:
-  Ticket: {Id} • Category: {Category} • Location: {Location} • Submitted: {YYYY-MM-DD HH:mm}
+Opens wa.me with a prefilled, human-readable message citizens can forward to ward/street groups.
 
-This submission intentionally implements WhatsApp only as the engagement channel.
+This submission intentionally implements WhatsApp only (no SMS/USSD/“data-free” web).
 
-🧩 Custom data structures (no built-ins):
+🧩 Custom data structures (no built-ins)
+To satisfy the “build your own data structure” requirement, the data path uses custom linked lists only:
 
-To satisfy the “build your own data structure” requirement, the data path uses only custom linked lists:
-- IssueList
-- Node: class Node { public Issue Value; public Node? Next; }
-- Operations: Add(Issue) O(1) append via tail pointer; FindById(int) linear scan; Last(int n) streams the last n items by skipping without arrays/LINQ; custom enumerator that walks nodes.
+IssueList
 
-- AttachmentList
-- Node: class Node { public string Value; public Node? Next; }
-- Operations: Add(string) (append O(1)); custom enumerator for iteration.
-- No List<T>, arrays, LINQ, Queue<T>, HashSet<T>, etc. are used for storage/manipulation.
-MVC’s IFormFileCollection is used only at the input edge (model binding), not as storage.
+Node: class Node { public Issue Value; public Node? Next; }
 
-💾 Persistence (manual, line-based):
+Operations:
+Add(Issue) O(1) append via tail pointer;
+FindById(int) linear scan;
+Last(int n) streams the last n items by skipping without arrays/LINQ;
+custom enumerator that walks nodes.
 
-File: App_Data/issues.txt (auto-created on first run)
-Encoding: Fields are URI-encoded (Uri.EscapeDataString) to avoid delimiter collisions.
-Format:
+AttachmentList
 
+Node: class Node { public string Value; public Node? Next; }
+
+Operations: Add(string) (append O(1)); custom enumerator for iteration.
+
+No List<T>, arrays, LINQ, Queue<T>, HashSet<T>, etc. are used for storage/manipulation.
+MVC’s IFormFileCollection is used only at the input edge (binding), not as storage.
+
+💾 Persistence (manual, line-based)
+File: App_Data/issues.txt (auto-created on first write)
+Encoding: Uri.EscapeDataString to avoid delimiter collisions.
+
+Format
+
+pgsql
+Copy code
 ISSUE|{Id}|{CreatedAtISO8601}|{LocationEnc}|{CategoryEnc}|{DescriptionEnc}|{StatusEnc}
 ATTACH|{PathEnc}
 ATTACH|{PathEnc}
 END
+Example
 
-Example:
-
+perl
+Copy code
 ISSUE|1|2025-09-04T12:00:00.0000000Z|Bosman%20St|Roads|Pothole%20near%20corner|Received
 ATTACH|/uploads/1/photo.jpg
 END
+On load: the app reads line-by-line, reconstructs each Issue, and populates AttachmentList node-by-node (no conversion to generic lists/arrays).
 
-- On load: The app reads the file line-by-line, reconstructs each Issue, and populates AttachmentList node-by-node. No conversion to generic lists/arrays is performed.
+🖼️ Using the app (demo flow)
+Open the landing page → see three tasks (two disabled).
 
-🖼️ Using the app:
+Click Report an Issue.
 
-- Open the landing page → show three tasks (two disabled).
-- Click Report an Issue.
-- Fill Location, Category, Description (watch the progress bar update).
-- Attach an image or document (optional).
-- Click Submit → view the ticket page with ID, details, attachments.
-- Click Share via WhatsApp Web → show the prefilled message.
-- Show wwwroot/uploads/{IssueId}/… in your file explorer.
-- Show App_Data/issues.txt to demonstrate line-based persistence.
+Fill Location, Category, Description (watch the progress bar).
 
-🧑‍⚖️ Marking checklist (mapping to brief):
+(Optional) Attach an image/document.
 
+Submit → view ticket page (ID, details, attachments).
+
+Click Share via WhatsApp Web → show prefilled message.
+
+Show wwwroot/uploads/{IssueId}/… and App_Data/issues.txt.
+
+✅ Marking checklist (mapping to brief)
 Startup menu with three tasks; two disabled ✔️
-Report Issues page: Location (textbox), Category (dropdown), Description (textarea) ✔️
+
+Report Issues page: Location, Category, Description ✔️
+
 Media attachments via file input (multiple) ✔️
-Submit button; clear feedback (confirmation page with ticket details) ✔️
+
+Submit button; confirmation page with ticket details ✔️
+
 Engagement feature: progress bar + helper micro-copy ✔️
+
 Navigation: Back to Home ✔️
+
 Consistency & clarity: Bootstrap layout, concise labels ✔️
+
 Responsiveness: Bootstrap grid ✔️
-Event handling: form validation, file upload, routing ✔️
+
+Event handling: validation, uploads, routing ✔️
+
 Data handling: custom structures (IssueList, AttachmentList) ✔️
+
 Persistence: manual line-based file (no built-ins for serialization) ✔️
+
 README: this file ✔️
-WhatsApp-only strategy implemented (no SMS/USSD/data-free web) ✔️
 
+WhatsApp-only strategy implemented ✔️
 
+⚙️ Configuration notes
+Uploads folder: created on startup at wwwroot/uploads/
 
-🛠️ Configuration notes:
+Persistence file: created on first write at App_Data/issues.txt
 
-Uploads folder: created on startup at wwwroot/uploads.
+HTTPS: dev certificate enabled by default
+If prompted, trust the cert:
 
-Persistence file: created on first write at App_Data/issues.txt.
+bash
+Copy code
+dotnet dev-certs https --trust
+🧩 Troubleshooting
+Uploads not visible in browser
+Ensure app.UseStaticFiles(); is in Program.cs and files exist under wwwroot/uploads/{IssueId}/.
 
-HTTPS: enabled by default (Kestrel dev cert). If cert prompts appear, trust the dev cert (dotnet dev-certs https --trust).
-
-
-
-🧰 Troubleshooting
-
-Uploads not visible in the browser
-Ensure app.UseStaticFiles(); is present in Program.cs, and files were saved under wwwroot/uploads/{IssueId}/.
-
-App_Data/issues.txt not created
-Submit at least one ticket; the file is created on append.
+App_Data/issues.txt missing
+Submit at least one ticket (file is created on append).
 
 HTTPS dev cert warnings
 Run dotnet dev-certs https --trust and restart the app/IDE.
 
 File I/O denied
-Make sure the process has write permission to the repo folder.
+Make sure the process has write permission to the repository directory.
 
-📹 Video (YouTube):
-link:
-https://youtu.be/Chgozli0Q2o
+📹 Demo video
+YouTube: https://youtu.be/Chgozli0Q2o
 
-References:
+Suggested recording flow: follow “Using the app (demo flow)” above.
 
-Microsoft (no date) Build your first ASP.NET Core MVC app with controllers and views. Available at: https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/start-mvc?view=aspnetcore-9.0&tabs=visual-studio
- (Accessed: 7 September 2025).
+📚 References (Anglia Harvard)
+Microsoft (no date) Build your first ASP.NET Core MVC app with controllers and views. Available at: https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/start-mvc?view=aspnetcore-9.0&tabs=visual-studio (Accessed: 8 September 2025).
 
-GeeksforGeeks (no date) Singly Linked List — Tutorial. Available at: https://www.geeksforgeeks.org/dsa/singly-linked-list-tutorial/
- (Accessed: 7 September 2025).
+GeeksforGeeks (no date) Singly Linked List — Tutorial. Available at: https://www.geeksforgeeks.org/dsa/singly-linked-list-tutorial/ (Accessed: 8 September 2025).
 
-Govender, D.S. (no date) Programming 3B (PROG7312) — Learning Material: Linked List. [PDF lecture notes]. (Accessed: 7 September 2025).
+Govender, D.S. (no date) Programming 3B (PROG7312) — Learning Material: Linked List. [PDF lecture notes]. (Accessed: 8 September 2025).
 
-OpenAI ChatGPT [AI language model]. Available at: https://openai.com/chatgpt
- (Accessed: 8 September 2025).
+OpenAI (no date) ChatGPT [AI language model]. Available at: https://openai.com/chatgpt (Accessed: 8 September 2025).
 
-<YOUR LINK>
-
-Suggested flow: follow the Testing tips and Marking demo script above.
+QuillBot (no date) QuillBot Paraphraser [AI writing assistant]. Available at: https://quillbot.com/ (Accessed: 8 September 2025).
